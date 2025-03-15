@@ -1,0 +1,12 @@
+This is an implementation of the paper Detecting Hidden Triggers: Mapping Non-Markov Reward Functions to Markov.
+
+There are two implementation using differenet solver, pulp and gurobi, in the file solve_rm_ilp.py. You can choose which one you want to use in main.py by use:
+sol, reward_machine = gurobi_solve_reward_machine_ILP(trajectories, K)
+or
+sol, reward_machine = solve_reward_machine_ILP(trajectories, K)
+
+The variable K is for select the number of state of the RM.
+
+You can change the environment by modify the file trace_generation.py to generate traces you want.
+
+Run main.py to run the program.

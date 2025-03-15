@@ -19,6 +19,7 @@ def main():
     K = 2
     print("Solving ILP for Reward Machine with K =", K)
     sol, reward_machine = gurobi_solve_reward_machine_ILP(trajectories, K)
+    # sol, reward_machine = solve_reward_machine_ILP(trajectories, K)
     if reward_machine is None:
         print("ILP 无法求解 Reward Machine，请尝试增加 K 的值。")
         return
