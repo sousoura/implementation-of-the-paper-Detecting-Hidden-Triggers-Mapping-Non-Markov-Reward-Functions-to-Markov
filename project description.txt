@@ -1,0 +1,117 @@
+## trajectories.json
+trajectories.json并不是一个符合json格式的文件，其记录的是强化学习的Agent的路径。其中每一行都是强化学习的一个trajectory，某一行的范例如下：
+[[["SettlementPoint", 755], 3, -0.10000662561285836], [["None", 756], 3, -0.10001535124604524], [["None", 757], 3, -0.10001606868374383], [["None", 758], 3, -0.10001764322592224], [["None", 759], 3, -0.10004218655966782], [["None", 760], 3, -0.10018245336921852], [["None", 761], 3, -0.10025648883673008], [["None", 762], 3, -0.10002200538579112], [["None", 763], 3, -0.10000596111933172], [["None", 764], 3, -0.10015583460855618], [["None", 765], 3, -0.10000476056859023], [["None", 766], 3, -0.10000527849837312], [["None", 767], 3, -0.10000340340072131], ...]
+
+可以看到，每一行都是一个列表，列表中的每一个子列表都是Agent的一个Lable SAR,即状态的Lable、状态、动作和奖励。格式为[["状态的Lable", 状态的数字编码], 动作, 奖励]。
+
+注意，在本项目中，状态的Lable是不被使用的，因此每一步实际有用的信息是状态、动作和奖励。
+
+## Dual-Behavior Mealy Machine
+我们定义了一类特殊的Mealy Machine，称作Dual-Behavior Mealy Machine，定义如下：
+A Dual-Behavior Mealy Machine(DBMM) is a tuple: <S, s0, Iα, Iβ, O, T, G>, where
+	S is a finite set of states
+	s0∈S is the start state
+	Iα is the first input alphabet(α-type inputs) that trigger output generation without causing state transitions
+	lβ is the second inpit alphabet (β-type inputs) that cause state transitions without generating output
+	O is the output alphabet
+	T: S x lβ → S is the transition function for β-type inputs
+	G: S x lα → O is the output function for α-type inputs
+
+Dual-Behavior Mealy Machine和Reward Machine的结构极为相似，因此它们是一一对应的关系。
+
+## mealy_rm.json
+mealy_tm.json中记录了一个mealy machine，这是一个特殊的mealy machine，其输入字符串分为两种，一种输入只会导致转移，而不是导致输出；另一类只会导致输出而不会导致转移。
+格式示例如下：
+{
+  "initial_state": "q0",
+  "states": {
+    "q0": {
+      "fingerprint": {
+        "590,0": "540",
+        "998,1": "1048",
+        "2398,1": "2398",
+        "1970,1": "1970",
+        "2070,0": "2070",
+        "2080,0": "2030",
+        "1980,1": "2030",
+        "1098,0": "1048",
+        "705,1": "755",
+        "805,0": "755",
+        "2447,3": "2447"
+      },
+      "transitions": {
+        "Mine": "q1",
+        "ProcessingPoint": "q0",
+        "SettlementPoint": "q0"
+      }
+    },
+    "q1": {
+      "fingerprint": {
+        "998,1": "1048",
+        "805,0": "805",
+        "2398,1": "2448",
+        "590,0": "540",
+        "1098,0": "1048",
+        "1970,1": "2020",
+        "1980,1": "2030",
+        "2080,0": "2030",
+        "705,1": "705"
+      },
+      "transitions": {
+        "Mine": "q1",
+        "ProcessingPoint": "q2",
+        "Blender": "q3"
+      }
+    },
+    "q2": {
+      "fingerprint": {
+        "2447,3": "2448",
+        "2070,0": "2020",
+        "1098,0": "1098",
+        "1970,1": "2020",
+        "2398,1": "2448",
+        "1980,1": "1980",
+        "590,0": "590",
+        "998,1": "998",
+        "805,0": "805",
+        "2080,0": "2080",
+        "705,1": "705"
+      },
+      "transitions": {
+        "Blender": "q3",
+        "ProcessingPoint": "q2"
+      }
+    },
+    "q3": {
+      "fingerprint": {
+        "2080,0": "2030",
+        "1970,1": "2020",
+        "805,0": "755",
+        "590,0": "540",
+        "1098,0": "1048",
+        "2447,3": "2448",
+        "2070,0": "2020",
+        "2398,1": "2448",
+        "1980,1": "2030",
+        "998,1": "1048",
+        "705,1": "755"
+      },
+      "transitions": {
+        "ProcessingPoint": "q3",
+        "Mine": "q3",
+        "Blender": "q3",
+        "SettlementPoint": "q1"
+      }
+    }
+  },
+  "state_count": 4
+}
+
+"state_count": 4意味着有四个状态
+"initial_state": "q0"意味着初始状态为q0
+fingerprint指的是在该状态下，什么输入会导致什么输出，比如q3状态下，如果输入是2080,0，则输出是2030。
+transitions记录了那些会导致转移的输出，比如"SettlementPoint": "q1"意味着当输入为SettlementPoint，状态会转移到q1.
+
+注意，在本项目中，由于不考虑label，因此，转移的输入应当是(s, a)，而不是label。
+
+## 算法描述

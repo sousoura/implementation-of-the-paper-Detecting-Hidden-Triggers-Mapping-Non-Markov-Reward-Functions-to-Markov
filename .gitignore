@@ -1,0 +1,78 @@
+# Python 缓存文件
+__pycache__/
+*.py[cod]
+*$py.class
+
+# 环境配置文件
+.env
+.venv/
+venv/
+env/
+pip-log.txt
+pip-delete-this-directory.txt
+Pipfile
+Pipfile.lock
+poetry.lock
+
+# Jupyter Notebook Checkpoints
+.ipynb_checkpoints
+
+# 编译相关文件
+*.so
+*.dll
+*.dylib
+*.pyd
+*.o
+*.a
+
+# 日志文件
+logs/
+*.log
+*.out
+*.err
+debug.log
+
+# 单元测试 / 覆盖率 / 报告文件
+htmlcov/
+.tox/
+.nox/
+coverage.xml
+*.cover
+.hypothesis/
+pytest_cache/
+
+# MyPy / Type Hint 相关
+.mypy_cache/
+dmypy.json
+.pyre/
+.pytype/
+
+# PyCharm 相关文件
+.idea/
+*.iml
+
+# VS Code 相关文件
+.vscode/
+settings.json
+*.code-workspace
+
+# 依赖管理
+node_modules/
+package-lock.json
+yarn.lock
+
+# Docker / Vagrant / CI/CD 相关
+.dockerignore
+.vagrant/
+*.vagrant
+docker-compose.override.yml
+
+# Jupyter Notebook 输出文件
+*.ipynb_checkpoints
+
+# 其他
+*.swp
+*.swo
+*.swn
+.DS_Store
+Thumbs.db
