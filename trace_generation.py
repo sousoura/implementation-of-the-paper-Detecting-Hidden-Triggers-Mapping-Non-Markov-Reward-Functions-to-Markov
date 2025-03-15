@@ -64,7 +64,7 @@ def run_one_episode(max_steps=20):
     trajectory = []
     x, y = 0, 0  # 初始位置
     have_visited_a = False  # 是否访问过 a
-    have_visited_c = True  # 是否访问过 c
+    have_visited_c = False  # 是否访问过 c
     done = False
 
     for _ in range(max_steps):
@@ -113,7 +113,8 @@ def main():
     random.seed(0)  # 固定随机种子，方便复现。可根据需要修改或去掉。
     # 收集 50 条轨迹
     all_trajectories = []
-    for _ in range(50):
+    num = 50
+    for _ in range(num):
         traj = run_one_episode(max_steps=1000)
         all_trajectories.append(traj)
 
@@ -124,7 +125,7 @@ def main():
             line_str = json.dumps(traj, ensure_ascii=False)
             f.write(line_str + "\n")
 
-    print("Done! 50 trajectories have been saved to trajectories.json")
+    print("Done! " + str(num) + " trajectories have been saved to trajectories.json")
 
 
 if __name__ == "__main__":

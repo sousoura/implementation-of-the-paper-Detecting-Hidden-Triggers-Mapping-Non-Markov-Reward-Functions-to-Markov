@@ -1,7 +1,8 @@
 # main.py
 
 from parse_trajectories import parse_trajectories
-from solve_rm_ilp import solve_reward_machine_ILP, gurobi_solve_reward_machine_ILP
+from solve_rm_ilp import solve_reward_machine_ILP
+from gurobi_solve_rm_ilp import gurobi_solve_reward_machine_ILP
 from build_rm import build_mealy_machine_json
 
 
@@ -16,7 +17,7 @@ def main():
 
     # 2. 调用 ILP 求解器
     # 这里设定 RM 状态数 K（例如初始设为 2，若不满足再调大）
-    K = 2
+    K = 3
     print("Solving ILP for Reward Machine with K =", K)
     sol, reward_machine = gurobi_solve_reward_machine_ILP(trajectories, K)
     # sol, reward_machine = solve_reward_machine_ILP(trajectories, K)

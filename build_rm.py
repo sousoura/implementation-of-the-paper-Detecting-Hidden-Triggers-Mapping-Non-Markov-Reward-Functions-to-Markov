@@ -12,13 +12,7 @@ def build_mealy_machine_json(reward_machine, output_file):
       {
          "states": [0, 1, ..., K-1],
          "initial_state": 0,
-         "edges": {
-             (i,j): {
-                 "transitions": [ (s, a, r, s_next), ... ],
-                 "reward": r
-             },
-             ...
-         }
+         "transitions": { (i, s, a, s_next): { "next_state": j, "reward": r, "steps": [...] } }
       }
 
     输出格式：
@@ -36,15 +30,16 @@ def build_mealy_machine_json(reward_machine, output_file):
       }
     """
     # 根据 reward_machine 中 states 的个数确定 K
-    K = len(reward_machine["states"]) if "states" in reward_machine else None
-    if K is None:
-        # 根据 edges 中出现的状态推断 K
+    if "states" in reward_machine:
+        K = len(reward_machine["states"])
+    else:
+        # 根据 transitions 中出现的状态推断 K
         states_set = set()
-        for (i, j) in reward_machine["edges"]:
+        for key in reward_machine["transitions"]:
+            i, s, a, s_next = key
             states_set.add(i)
-            states_set.add(j)
+            states_set.add(reward_machine["transitions"][key]["next_state"])
         K = max(states_set) + 1
-        reward_machine["states"] = list(range(K))
 
     mealy_rm = {
         "initial_state": "q0",
@@ -52,19 +47,21 @@ def build_mealy_machine_json(reward_machine, output_file):
         "state_count": K
     }
 
-    # 为每个状态建立 fingerprint 和 transitions 字典
+    # 初始化每个状态的 fingerprint 和 transitions 字典
     for i in range(K):
         state_name = f"q{i}"
         mealy_rm["states"][state_name] = {"fingerprint": {}, "transitions": {}}
 
-    # 遍历每个边，将对应的 (s,a) 信息加入起始状态的 fingerprint 和 transitions 中
-    for (i, j), edge_info in reward_machine["edges"].items():
-        transitions = edge_info.get("transitions", [])
-        reward_val = edge_info.get("reward", None)
-        for (s, a, r, s_next) in transitions:
-            key = f"{s},{a}"
-            mealy_rm["states"][f"q{i}"]["fingerprint"][key] = str(reward_val)
-            mealy_rm["states"][f"q{i}"]["transitions"][key] = f"q{j}"
+    # 遍历 reward_machine["transitions"] 中的每一条转移规则
+    # 键的格式为 (i, s, a, s_next)，值为 { "next_state": j, "reward": r, "steps": [...] }
+    for key, info in reward_machine["transitions"].items():
+        i, s, a, s_next = key
+        next_state = info["next_state"]
+        reward_val = info["reward"]
+        # 以 (s, a) 作为 fingerprint 与 transitions 的 key
+        fingerprint_key = f"{s},{a}"
+        mealy_rm["states"][f"q{i}"]["fingerprint"][fingerprint_key] = str(reward_val)
+        mealy_rm["states"][f"q{i}"]["transitions"][fingerprint_key] = f"q{next_state}"
 
     with open(output_file, 'w') as f:
         json.dump(mealy_rm, f, indent=2)
@@ -76,14 +73,16 @@ if __name__ == "__main__":
     sample_rm = {
         "states": [0, 1],
         "initial_state": 0,
-        "edges": {
-            (0, 1): {
-                "transitions": [(755, 3, 1, 756)],
-                "reward": 1
+        "transitions": {
+            (0, "755", 3, "756"): {
+                "next_state": 1,
+                "reward": 1,
+                "steps": [("755", 3, 1, "756")]
             },
-            (1, 1): {
-                "transitions": [(756, 3, 0, 757)],
-                "reward": 0
+            (1, "756", 3, "757"): {
+                "next_state": 1,
+                "reward": 0,
+                "steps": [("756", 3, 0, "757")]
             }
         }
     }
